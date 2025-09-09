@@ -58,6 +58,10 @@ dependencies {
     implementation(libs.gson)
     implementation(libs.zxing)
 
+    // Koin (DI)
+    implementation(libs.koin.android)
+    implementation(libs.koin.androidx.compose)
+
     // Testes
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
