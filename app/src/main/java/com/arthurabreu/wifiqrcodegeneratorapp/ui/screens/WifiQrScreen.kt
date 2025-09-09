@@ -1,93 +1,25 @@
-package com.arthurabreu.wifiqrcodegeneratorapp.activities
+package com.arthurabreu.wifiqrcodegeneratorapp.ui.screens
 
-import android.graphics.Bitmap
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Surface
-import androidx.compose.material3.SwipeToDismissBox
-import androidx.compose.material3.SwipeToDismissBoxValue
-import androidx.compose.material3.Text
-import androidx.compose.material3.rememberSwipeToDismissBoxState
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.lifecycle.ViewModelProvider
-import com.arthurabreu.wifiqrcodegeneratorapp.ui.WifiQrViewModel
+import com.arthurabreu.wifiqrcodegeneratorapp.ui.components.*
 import com.arthurabreu.wifiqrcodegeneratorapp.ui.components.NetworkItemCard
-import com.arthurabreu.wifiqrcodegeneratorapp.ui.components.HeaderTitle
-import com.arthurabreu.wifiqrcodegeneratorapp.ui.components.NetworkFields
-import com.arthurabreu.wifiqrcodegeneratorapp.ui.components.ActionButtons
-import com.arthurabreu.wifiqrcodegeneratorapp.ui.components.SavedListHeader
-import com.arthurabreu.wifiqrcodegeneratorapp.ui.components.QrPreview
-
-class MainActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            WifiQrAppRoot()
-        }
-    }
-}
-
-@Composable
-fun WifiQrAppRoot() {
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.background
-    ) {
-        WifiQrScreen()
-    }
-}
+import com.arthurabreu.wifiqrcodegeneratorapp.viewmodels.WifiQrViewModel
+import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WifiQrScreen() {
-    val context = LocalContext.current
-    val activity = context as ComponentActivity
-    // This is effectively manual dependency injection:
-    // - We explicitly create a ViewModelProvider with a custom Factory that knows
-    //   how to construct WifiQrViewModel and its dependencies (Repository + UseCases).
-    // - No DI framework (like Hilt/Koin) is used here; the graph is wired by hand,
-    //   keeping creation at the composition entry point so the same ViewModel instance
-    //   is retained across recompositions thanks to remember(activity) and the Activity
-    //   being the ViewModelStoreOwner.
-    val viewModel = remember(activity) {
-        ViewModelProvider(
-            activity,
-            WifiQrViewModel.Factory(activity.application)
-        )[WifiQrViewModel::class.java]
-    }
-    // Collect StateFlow from the ViewModel in a Compose-friendly way:
-    // - We snapshot the current state as initialValue to avoid a null/blank frame.
-    // - produceState launches a coroutine tied to this composition, collecting
-    //   viewModel.state and updating 'value' whenever the flow emits.
+fun WifiQrScreen(viewModel: WifiQrViewModel = koinViewModel()) {
     val initialState = remember { viewModel.state.value }
     val state = produceState(initialValue = initialState, key1 = viewModel) {
         viewModel.state.collect { value = it }
@@ -129,10 +61,6 @@ fun WifiQrScreen() {
                 items = state.savedNetworks,
                 key = { network -> network.ssid + ":" + network.password }
             ) { network ->
-                // Swipe-to-dismiss confirmation:
-                // - We only allow EndToStart (right-to-left) as a destructive action.
-                // - When the target value becomes EndToStart, we delete the item and
-                //   return true to finalize the dismissal animation.
                 val dismissState = rememberSwipeToDismissBoxState(
                     confirmValueChange = { value ->
                         if (value == SwipeToDismissBoxValue.EndToStart) {
@@ -181,19 +109,6 @@ fun WifiQrScreen() {
 
         item { Spacer(modifier = Modifier.height(24.dp)) }
 
-        item {
-            QrPreview(qrCodeBitmap = state.qrCodeBitmap, qrCodeText = state.qrCodeText)
-        }
+        item { QrPreview(qrCodeBitmap = state.qrCodeBitmap, qrCodeText = state.qrCodeText) }
     }
-}
-
-
-
-
-
-
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-    WifiQrAppRoot()
 }
