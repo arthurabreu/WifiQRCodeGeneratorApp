@@ -16,15 +16,8 @@ Generate and preview QR codes for Wi‑Fi networks. Save your favorite network p
 
 
 ## Demo
-
-<!-- Optionally add screenshots or a short GIF of the app in action -->
-<!--
-<p align="center">
-  <img src="docs/screenshot_home.png" width="320" alt="Home screen" />
-  <img src="docs/screenshot_qr.png" width="320" alt="QR preview" />
-</p>
--->
-
+<img width="1080" height="2316" alt="Screenshot_20251004_133649" src="https://github.com/user-attachments/assets/9ae6bca9-c3ae-4d53-8736-743b9aff1c8c" />
+<img width="1080" height="2316" alt="Screenshot_20251004_133804" src="https://github.com/user-attachments/assets/9bdbcc70-138f-4fa8-a1f7-3fbf2b2e9a59" />
 
 ## Tech Stack
 - Language: Kotlin (JVM target 11)
